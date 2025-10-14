@@ -95,7 +95,7 @@ class RedHatAPI:
 rhapi = RedHatAPI()
 
 @mcp.tool()
-async def search_kcs(query: str, rows: int = 50, start: int = 0) -> List[Dict]:
+async def search_kcs(query: str, rows: int = 50, start: int = 0, session_id: str = None) -> List[Dict]:
     """
     Search for Red Hat KCS Solutions and return a list with Solution IDs.
     
@@ -136,7 +136,7 @@ async def search_kcs(query: str, rows: int = 50, start: int = 0) -> List[Dict]:
     return solutions
 
 @mcp.tool()
-async def get_kcs(solution_id: str) -> Dict:
+async def get_kcs(solution_id: str, session_id: str = None) -> Dict:
     """Get a specific solution by ID and extract structured content
 
     Args:
@@ -181,7 +181,7 @@ async def get_kcs(solution_id: str) -> Dict:
 
 
 @mcp.tool()
-async def search_cases(query: str, rows: int = 10, start: int = 0) -> List[Dict]:
+async def search_cases(query: str, rows: int = 10, start: int = 0, session_id: str = None) -> List[Dict]:
     """
     Search for Red Hat cases and return a list of case numbers.
     
@@ -227,7 +227,7 @@ async def search_cases(query: str, rows: int = 10, start: int = 0) -> List[Dict]
     return cases
 
 @mcp.tool()
-async def get_case(case_number: str) -> Dict:
+async def get_case(case_number: str, session_id: str = None) -> Dict:
     """
     Get case details by case number.
     
