@@ -17,6 +17,7 @@ from typing import Optional, List, Dict, Any, Union
 import httpx
 from dotenv import load_dotenv
 from fastmcp import FastMCP
+from fastapi.responses import JSONResponse
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 
@@ -93,6 +94,56 @@ class RedHatAPI:
 
 # Initialize API client
 rhapi = RedHatAPI()
+
+# Access the underlying FastAPI app to add custom routes
+app = mcp.app
+
+@app.get("/health")
+async def health_check():
+    """
+    Health check endpoint for Kubernetes liveness probes.
+    Returns 200 if the server is running.
+    """
+    return JSONResponse(
+        content={
+            "status": "healthy",
+            "service": "RedHat KCS MCP Server"
+        },
+        status_code=200
+    )
+
+@app.get("/readiness")
+async def readiness_check():
+    """
+    Readiness check endpoint for Kubernetes readiness probes.
+    Verifies that the API token is configured and the server is ready to handle requests.
+    """
+    try:
+        # Check if the offline token is configured
+        if not rhapi.offline_token:
+            return JSONResponse(
+                content={
+                    "status": "not_ready",
+                    "reason": "RH_API_OFFLINE_TOKEN not configured"
+                },
+                status_code=503
+            )
+        
+        return JSONResponse(
+            content={
+                "status": "ready",
+                "service": "RedHat KCS MCP Server"
+            },
+            status_code=200
+        )
+    except Exception as e:
+        return JSONResponse(
+            content={
+                "status": "not_ready",
+                "reason": str(e)
+            },
+            status_code=503
+        )
 
 @mcp.tool()
 async def search_kcs(query: str, rows: int = 50, start: int = 0, session_id: str = None) -> List[Dict]:
